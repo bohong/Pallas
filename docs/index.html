@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pallas</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+  	 <style>
+        .sidebar{
+            margin-top: 40px;
+        }
+        </style>
+</head>
+<body>
+
+  <nav style="color:#fff;background-color:rgb(84, 92, 100);right:auto; position: fixed;width: 100%;top: 0; z-index: 100;text-align:left;margin:0px 0px;padding:10px 10px; border-bottom: 1px solid rgba(0,0,0,.07);">
+    <a href="http://psc.tools.vipshop.com/">基础架构产品中心</a>
+    <a href="http://psc.tools.vipshop.com/docs/pallas/index.html#/">首页</a>
+   
+  </nav>
+  <div id="app"></div>
+  <script>
+  		window.$docsify = {
+	        name: 'Pallas',
+	        basePath: '/',
+	        auto2top: true,
+	        coverpage: true,
+	        executeScript: true,
+	        loadSidebar: true,
+	        loadNavbar: false,
+	        mergeNavbar: true,
+	        maxLevel: 4,
+	        subMaxLevel: 3,
+	        search: {
+	            noData: {
+	                '/zh-cn/': '没有结果!',
+	                '/': 'No results!'
+	            },
+	            paths: 'auto',
+	            placeholder: {
+	                '/zh-cn/': '搜索',
+	                '/': 'Search'
+	            }
+	        },
+	    }
+  </script>
+  <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+  <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+- [简介](zh-cn/1.x/README.md)
+- [快速开始](zh-cn/1.x/tutorial.md)
+- [适用人群(user case)](zh-cn/1.x/usercase.md)
+- [代码运行](zh-cn/1.x/run.md)
+- Console模块
+    - 索引管理
+      - [索引管理](zh-cn/1.x/Console模块/索引管理/index.md)
+      - [版本管理](zh-cn/1.x/Console模块/版本管理/version.md)
+      - [模板管理](zh-cn/1.x/Console模块/模板管理/template.md)
+      - [路由管理](zh-cn/1.x/Console模块/路由管理/route.md)
+      - [流量记录](zh-cn/1.x/Console模块/流量记录/flow_record.md)
+      - [索引动态](zh-cn/1.x/Console模块Console模块/索引动态/indexAudit.md)
+    - [集群管理](zh-cn/1.x/Console模块/集群管理/cluster.md)
+    - [代理管理](zh-cn/1.x/Console模块/代理管理/ps.md)
+    - [Token管理](zh-cn/1.x/Console模块/Token管理/token.md)
+    - [插件管理](zh-cn/1.x/Console模块/插件管理/plugin.md)
+    - [权限管理](zh-cn/1.x/Console模块/权限管理/authorization.md)
+- [代理模块](zh-cn/1.x/代理模块/pallas-search.md)
+- [SDK模块](zh-cn/1.x/SDK模块/sdk.md)
+- 接入
+    - [接入自检](zh-cn/1.x/接入/selfcheck.md)
+    - [接入备案](zh-cn/1.x/接入/application.md)
+    - [接入文档](zh-cn/1.x/接入/step-by-step.md)

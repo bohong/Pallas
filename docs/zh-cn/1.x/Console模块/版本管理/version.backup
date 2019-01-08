@@ -1,0 +1,159 @@
+## 概述
+
+业务人员在开发时，对于同一索引，可能会修改数据源、集群，或者设置不同的Mapping信息进行不同的测试。为了避免业务人员由于以上情况重复创建索引的麻烦，Pallas Console提供同一索引的不同版本管理。
+
+## 1 版本总览
+
+可通过点击索引名或者操作栏下的管理按钮进入版本管理页面：
+
+![](image/indexOpVersion.png)
+
+![](image/versionOverview.PNG)
+
+## 2 新增版本
+
+  - mysql
+
+    ![](image/mapping1.PNG)
+
+    ![](image/mapping2.PNG)
+    
+    当数据源为mysql时，如上图所示，具体解释如下：
+      
+      - 分片数量：索引的分片数量
+    
+      - 复制数据：索引的复制数量
+    
+      - 同步数据Q：数据表对应的vdp/rdp queue（需先确保待接入的数据表已经接入VDP，如不清楚请rtx戴翔 向阿鲲 同学; rdp 请咨询汤锦平同学）
+    
+        > RDP VS VDP
+
+         - VDP是一个表写到一个channel， 然后将queue绑定到表的channel，即通过queue可以消费表级别的变动；
+         
+         - RDP是一个数据库实例写到一个channel，再将queue绑定一个channel，通过queue可以消费数据库级别的变动；
+         
+         - 两者queue的消费均使用vms-client。
+         
+         - 所以如果对接rdp，且在pallas中的多个索引的数据源为同一个数据库实例的不同表，则需要将rdp的channel生成对应数量的queue来分别绑定到不同的索引上。
+         
+         - 比如：索引1的数据源为DB1的table1，索引2的数据源为DB1的table2， 则需要将rdp对应DB1的channel生成2条queue， queue1和queue2， 分别配置到索引1和索引2中，pallas会将不属于该索引的变动丢弃掉。
+  
+      - Routing Key：分片字段
+  
+      - ID列： 唯一键字段
+  
+      - Update Time列：更新时间字段
+  
+      - 只导局部字段：返回结果里是否只包含mapping配置的字段
+  
+      - 是否vdp：如果对接的是rdp请选择OFF
+  
+      - 索引落盘日志
+        
+        Index Slow: 索引写入慢日志阀值
+        
+        Fetch Slow: 索引fetch慢日志阀值
+        
+        Query Slow: 索引query慢日志阀值
+        
+      - 索引其他配置:
+      
+        refresh(秒): 索引刷新时间间隔
+      
+      - mapping配置
+        
+        > 注意：text有两种类型，text（标准分词）和text（逐字分词）。区别为：标准分词->中文逐字，英文整个；逐字分词->中文或英文都是逐字，业务根据具体情况选择。
+
+        > 注意：多值/单值，多值是指数组的意思 
+        
+        > 注意：查询关键字，对应sql语句中的过滤条件
+        
+        > 注意：排序或聚合，对应sql语句中用于排序、聚合的字段
+
+  - vms
+      
+    对于vms数据源而言，需手动添加mapping字段
+
+  保存，如下：
+
+  ![](image/versonOpAdd.png)
+  
+## 3 开始版本同步
+
+> 注意：**一定要先添加host**
+
+```
+#qa环境
+10.197.129.11 pallas.vip.vip.com  （或绑定online hosts http://oeop.tools.vipshop.com/online_hosts/179.txt）
+10.197.158.74 saturn.vip.vip.com  （或绑定online hosts http://oeop.tools.vipshop.com/online_hosts/179.txt）
+
+#staging
+10.199.133.253 pallas.vip.vip.com (或绑定online hosts  http://oeop.tools.vipshop.com/online_hosts/staging.txt)
+10.197.158.202  saturn.vip.vip.com  (或绑定online hosts  http://oeop.tools.vipshop.com/online_hosts/staging.txt)
+
+```
+点击开始同步按钮，会在saturn.vip.vip.com上创建该索引的三个作业，其中vms数据源的只有最后一个作业
+- {index_name}_{version_id}_full 全量同步作业，需要手工触发执行
+- {index_name}_{version_id}_checking 对账作业，每三天零晨2点执行一次
+- {index_name}_{version_id}_vdp 实时vdp更新作业，有vdp消息就会触发
+> 访问saturn.vip.vip.com，左边域输入框过滤vip.job.pallas即可找到以上三个作业，点击{index_name}_{version_id}_full作业进去点击立即执行一次，即可触发全量同步数据，同步完成后点击{index_name}_{version_id}_vdp启用增量作业(默认是禁用状态，必须手动启用，否则将无法消费)。
+
+  ![](image/saturn.png)
+
+  > 如果重建版本，要将之前的版本停止同步，或者手动停掉saturn上旧版本的vdp作业,或者不同版本配置不同的queue，否则同一个queue的消息可能被旧版本的消息作业消费掉导致新版本数据不同步。
+
+## 4 启用版本
+
+点击启用版本按钮，使当前版本的索引生效。
+
+> 当前如果有其他版本处于启用中，此操作会将之前启用的版本停掉。
+
+## 5 立即执行全量
+
+点击立即执行全量，同步数据：
+
+![](image/versionfullsync.png)
+
+属性说明如下:
+
+- ES Bulk: 索引批量插入条数
+
+- ES thread: 索引写入线程数
+
+- DB Limit: DB批量取出条数
+
+- 任务分隔: 作业分片数
+
+## 6 开启增量
+
+同步完成后，点击启用rdp/vdp按钮，或者在saturn console界面启动vdp作业。
+
+## 7 其他操作
+
+### 7.1 查看配置信息
+
+![](image/versionMapping.PNG)
+
+查询此版本索引在es中的mapping信息。
+
+### 7.2 同步作业状态
+
+查询此版本索引在saturn创建的作业运行状态。
+
+### 7.3 立即执行对账
+
+立即启用对帐程序，对es/db数据进行比对，查漏补缺
+
+### 7.4 结束同步
+
+点击结束同步按钮后，会删除ES中的索引和saturn中的作业。
+
+> saturn规定：作业创建2分钟后才可以删除，详情见saturn。
+
+### 7.5 删除操作
+
+  - 删除作业
+    
+    > 如果结束同步没有将saturn中的作业删除干净，可手动执行此操作删除作业。
+
+  - 删除版本
